@@ -2,6 +2,7 @@
 from db import DB
 from user import User
 from bcrypt import hashpw, gensalt
+from sqlalchemy.orm.exc import NoResultFound
 
 
 def _hash_password(password: str) -> bytes:
@@ -20,17 +21,18 @@ def _hash_password(password: str) -> bytes:
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
     return hashed_password
 
+
 def register_user(self, email: str, password: str) -> User:
     """
     Registers a new user with thhe given email and password.
-    
+
     Args:
         email (str): User's email.
         password (str): User's password.
-        
+
     Returns:
         User: The created user object.
-        
+
     Raises:
         ValueError: If a user with the given email already exists.
     """
