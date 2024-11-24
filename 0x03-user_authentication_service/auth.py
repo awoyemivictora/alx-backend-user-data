@@ -5,7 +5,71 @@ from bcrypt import hashpw, gensalt
 from sqlalchemy.orm.exc import NoResultFound
 import bcrypt
 import uuid
+from typing import Optional
 
+
+class Auth:
+    def __init__(self):
+        self._db = DB()
+
+    def valid_login(self, email: str, password: str) -> bool:
+        """
+        Check if a user can log in with the provided email and password.
+
+        Args:
+            email (str): The user's email.
+            password (str): The user's password.
+
+        Returns:
+            bool: True if login is valid, False otherwise.
+        """
+        try:
+            user = self._db.find_user_by(email=email)
+            # bcrypt.checkpw expects bytes, so encode the password
+            if bcrypt.checkpw(password.encode('utf-8'), user.hashed_password):
+                return True
+        except NoResultFound:
+            return False
+        return False
+    
+
+    def create_session(self, email: str) -> Optional[str]:
+        """
+        Create a session ID for the user with the given email.
+        
+        Args:
+            email (str): The email of the user to create a session for.
+            
+        Returns:
+            Optional[str]: The session ID if the user exists, or None if the user does not exist.
+        """
+        try:
+            # Find the user by email
+            user = self._db.find_user_by(email=email)
+            if not user:
+                return None
+            
+            # Generate a new session ID
+            session_id = _generate_uuid()
+
+            # Update the user's session_id in the database
+            self._db.update_user(user.id, session_id=session_id)
+
+            return session_id
+        
+        except Exception as e:
+            return None
+        
+# Private utility function for generating UUIDs
+def _generate_uuid() -> str:
+    """
+    Generate a new UUID and return its string representation.
+    
+    Returns:
+        str: A string representation of a new UUID.
+    """
+    import uuid
+    return str(uuid.uuid4())
 
 def _hash_password(password: str) -> bytes:
     """
@@ -50,31 +114,6 @@ def register_user(self, email: str, password: str) -> User:
         return new_user
 
 
-class Auth:
-    def __init__(self):
-        self._db = DB()
-
-    def valid_login(self, email: str, password: str) -> bool:
-        """
-        Check if a user can log in with the provided email and password.
-
-        Args:
-            email (str): The user's email.
-            password (str): The user's password.
-
-        Returns:
-            bool: True if login is valid, False otherwise.
-        """
-        try:
-            user = self._db.find_user_by(email=email)
-            # bcrypt.checkpw expects bytes, so encode the password
-            if bcrypt.checkpw(password.encode('utf-8'), user.hashed_password):
-                return True
-        except NoResultFound:
-            return False
-        return False
-
-
 def _generate_uuid() -> str:
     """
     Generate a new UUID and return its string representation.
@@ -83,3 +122,5 @@ def _generate_uuid() -> str:
         str: A string representation of a new UUID.
     """
     return str(uuid.uuid4())
+
+
