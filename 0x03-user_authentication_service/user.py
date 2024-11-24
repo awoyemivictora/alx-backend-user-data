@@ -1,6 +1,5 @@
-# Every models represent a table in our database for SQLAlchemy
+#!/usr/bin/env python3
 from time import timezone
-from sqlalchemy import TIMESTAMP, Boolean, Column, DateTime, ForeignKey, Integer, String, Date, Text, text, Float, Enum
 from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
 # from app.database import Base
 from sqlalchemy.ext.declarative import declarative_base
@@ -17,10 +16,12 @@ Base = declarative_base()
 
 class User(Base):
     __tablename__ = 'users'
+
     
-    id: Mapped[int] = mapped_column(nullable=False, primary_key=True, unique=True) 
+    id: Mapped[int] = mapped_column(nullable=False, primary_key=True, unique=True)
     email: Mapped[str] = mapped_column(nullable=False, unique=True) 
     hashed_password: Mapped[str] = mapped_column(nullable=False)
     session_id: Mapped[str] = mapped_column(nullable=True)
     reset_token: Mapped[str] = mapped_column(nullable=True)
+   
    
