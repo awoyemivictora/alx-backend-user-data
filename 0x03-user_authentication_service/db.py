@@ -80,3 +80,28 @@ class DB:
             raise InvalidRequestError(f"Invalid query argument: {e}")
 
         return user
+
+    def update_user(self, user_id: int, **kwargs) -> None:
+        """Update a user's attributes and commit changes to the database.
+
+        Args:
+            user_id (int): The ID of the user to update.
+            **kwargs: Arbitrary keyword arguments representing
+                attributes to update.
+
+        Raises:
+            ValueError: If an argument does not correspond
+            to a valid user attribute.
+        """
+        # Find the user by ID
+        user = self.find_user_by(id=user_id)
+
+        for key, value in kwargs.items():
+            # Check if the attribute exists in the User model
+            if not hasattr(user, key):
+                raise ValueError(f"User has no attribute '{key}'")
+            # Update the user's attribute
+            setattr(user, key, value)
+
+        # Commit the changes
+        self._session.commit()
