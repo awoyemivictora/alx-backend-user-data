@@ -3,6 +3,7 @@ from db import DB
 from user import User
 from bcrypt import hashpw, gensalt
 from sqlalchemy.orm.exc import NoResultFound
+import bcrypt
 
 
 def _hash_password(password: str) -> bytes:
@@ -46,3 +47,28 @@ def register_user(self, email: str, password: str) -> User:
         hashed_password = self._hash_password(password)
         new_user = self._db.add_user(email, hashed_password.decode('utf-8'))
         return new_user
+
+
+class Auth:
+    def __init__(self):
+        self._db = DB()
+
+    def valid_login(self, email: str, password: str) -> bool:
+        """
+        Check if a user can log in with the provided email and password.
+
+        Args:
+            email (str): The user's email.
+            password (str): The user's password.
+
+        Returns:
+            bool: True if login is valid, False otherwise.
+        """
+        try:
+            user = self._db.find_user_by(email=email)
+            # bcrypt.checkpw expects bytes, so encode the password
+            if bcrypt.checkpw(password.encode('utf-8'), user.hashed_password):
+                return True
+        except NoResultFound:
+            return False
+        return False
