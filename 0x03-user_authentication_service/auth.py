@@ -31,24 +31,24 @@ class Auth:
         except NoResultFound:
             return False
         return False
-    
 
     def create_session(self, email: str) -> Optional[str]:
         """
         Create a session ID for the user with the given email.
-        
+
         Args:
             email (str): The email of the user to create a session for.
-            
+
         Returns:
-            Optional[str]: The session ID if the user exists, or None if the user does not exist.
+            Optional[str]: The session ID if the user exists,
+             or None if the user does not exist.
         """
         try:
             # Find the user by email
             user = self._db.find_user_by(email=email)
             if not user:
                 return None
-            
+
             # Generate a new session ID
             session_id = _generate_uuid()
 
@@ -56,20 +56,22 @@ class Auth:
             self._db.update_user(user.id, session_id=session_id)
 
             return session_id
-        
+
         except Exception as e:
             return None
-        
+
+
 # Private utility function for generating UUIDs
 def _generate_uuid() -> str:
     """
     Generate a new UUID and return its string representation.
-    
+
     Returns:
         str: A string representation of a new UUID.
     """
     import uuid
     return str(uuid.uuid4())
+
 
 def _hash_password(password: str) -> bytes:
     """
@@ -122,5 +124,3 @@ def _generate_uuid() -> str:
         str: A string representation of a new UUID.
     """
     return str(uuid.uuid4())
-
-
