@@ -60,6 +60,28 @@ class Auth:
         except Exception as e:
             return None
 
+    def get_user_from_session_id(self, session_id: str):
+        """
+        Retrieve a user by their session ID.
+
+        Args:
+            session_id (str): The session ID.
+
+        Returns:
+            User or None: The user corresponding to the session ID, or None
+        """
+        if session_id is None:
+            return None
+
+        try:
+            # Query the database for a user with the given session_id
+            user = self._db.find_user_by(session_id=session_id)
+        except Exception:
+            # If no user is found, return None
+            return None
+
+        return user
+
 
 # Private utility function for generating UUIDs
 def _generate_uuid() -> str:
